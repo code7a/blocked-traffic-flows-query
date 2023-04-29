@@ -1,0 +1,42 @@
+# Blocked Traffic Flows Query
+https://github.com/code7a/blocked-traffic-flows-query
+
+Licensed under the Apache License, Version 2.0 (the "License"); you may not
+use this file except in compliance with the License. You may obtain a copy of
+the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+License for the specific language governing permissions and limitations under
+the License.
+
+Blocked Traffic Flows Query will submit queries for blocked network flow connections from the last 24 hours. One may include filters such as an IP address, port number, port number exclusions, and transmission type exclusions.
+
+Repository contains a PHP web application and command line tool.
+
+## PHP Web Application
+To install the PHP web application, clone repository and run the install.sh script on a minimal RHEL 9 based linux distribution. The install.sh script will:
+1.  install nginx, php, policycoreutils, curl 8, and libcurl 8
+2.  update the php.ini set timezone to match the local host timezone
+3.  copy the web application php files to the default nginx web directory
+4.  execute update-php-config.sh (this will prompt for the needed domain and authentication keys)
+5.  generate and install SELinux policy to allow http connections
+
+config.php example:
+```
+<?php
+$fqdn='example.pce.local';
+$port='8443';
+$org='1';
+$user='api_1b4a1234e4caa8667';
+$key='97886resb17a11d1234f6be38fde6e991f759as1584759684520b26f6072aefe';
+?>
+```
+
+API user only needs read permissions to query flows. Modify port_exclusions.csv as desired.
+
+## Command Line Tool
+The blocked-traffic-flows-query.sh command line tool script will send a traffic flows query for blocked traffic. The command line tool requires jq, python, and pandas python package.
