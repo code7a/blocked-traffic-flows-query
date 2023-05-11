@@ -190,7 +190,7 @@
                     echo "None<br>";}}}
     ?>
     <body style="margin: 0;padding: 0">
-        <div class="header">Blocked Traffic Flows Query</div>
+        <div class="header">illumio - Blocked Traffic Flows Query</div>
         <div class="filter">
             <form action="" method="post">
                 IP: <input type="text" name="form_ip" value='<?php echo isset($_POST["form_ip"]) ? $_POST["form_ip"] : "" ?>'>&nbsp
