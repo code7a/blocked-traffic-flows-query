@@ -23,11 +23,16 @@
 service firewalld stop
 systemctl disable firewalld
 
+#update curl
+echo '[CityFan]
+name=City Fan Repo
+baseurl=http://www.city-fan.org/ftp/contrib/yum-repo/rhel$releasever/$basearch/
+enabled=1
+gpgcheck=0' > /etc/yum.repos.d/city-fan.repo
+yum update -y curl
+
 #install and start services
 yum install -y wget nginx php policycoreutils-devel
-wget https://mirror.city-fan.org/ftp/contrib/sysutils/Mirroring/curl-8.0.1-3.0.cf.rhel9.x86_64.rpm
-wget https://mirror.city-fan.org/ftp/contrib/sysutils/Mirroring/libcurl-8.0.1-3.0.cf.rhel9.x86_64.rpm
-rpm -ivh curl-8.0.1-3.0.cf.rhel9.x86_64.rpm libcurl-8.0.1-3.0.cf.rhel9.x86_64.rpm --force
 systemctl enable nginx
 systemctl start nginx
 
