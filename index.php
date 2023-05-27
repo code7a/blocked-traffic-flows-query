@@ -26,7 +26,7 @@
             position:relative;
             top:15%;}
         div.filter {
-            background-color:#dee0e3;
+            background-color:#e3e6e9;
             font-family: 'Segoe UI';
             color: #424242;
             height: 55px;
@@ -61,14 +61,11 @@
                 $port_number = "";}
             //exclude transmission conditional statement
             if(isset($_POST['form_exclude_broadcast']) && isset($_POST['form_exclude_multicast'])) {
-                $exclude_transmission='{"transmission":"broadcast"},{"transmission":"multicast"}';
-            }
+                $exclude_transmission='{"transmission":"broadcast"},{"transmission":"multicast"}';}
             elseif(isset($_POST['form_exclude_broadcast'])) {
-                $exclude_transmission='{"transmission":"broadcast"}';
-            }
+                $exclude_transmission='{"transmission":"broadcast"}';}
             elseif(isset($_POST['form_exclude_multicast'])) {
-                $exclude_transmission='{"transmission":"multicast"}';
-            }
+                $exclude_transmission='{"transmission":"multicast"}';}
             else {$exclude_transmission="";}
             //exclude services conditional statement
             if(isset($_POST['form_exclude_services'])) {
@@ -78,9 +75,8 @@
                 foreach ($port_exclusions_array as $each_port) {
                     $services_to_exclude =  $services_to_exclude . '{"port":' . $each_port . '},';
                 }
-                $services_to_exclude = substr($services_to_exclude,0,-1);
-                //$services_to_exclude='{"port":137},{"port":138},{"port":139},{"port":1900},{"port":3702},{"port":5353},{"port":5355}';
-            } else {
+                $services_to_exclude = substr($services_to_exclude,0,-1);}
+            else {
                 $services_to_exclude="";}
             //get date
             $now = date("Y-m-d\\TH:i:s");
@@ -118,79 +114,83 @@
             //download query href results
             $ch = curl_init("https://$fqdn:$port/api/v2$traffic_flows_query_href/download");
             curl_setopt($ch, CURLOPT_USERPWD, "$user:$key");
+            curl_setopt($ch, CURLOPT_HTTPHEADER, array('Accept:application/json'));
             curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
             $result = curl_exec($ch);
             curl_close($ch);
-            $row_count = 0;
+            $flows = json_decode($result);
+            //print_r($flows);
             if(empty($_POST["form_ip"])) {
                 echo "<table>";
-                foreach(preg_split("/((\r?\n)|(\r\n?))/", $result) as $line){
-                    $output = shell_exec("echo $line | cut -d, -f1,14,26,27,31,36,37");
-                    if (!str_contains($output,",")) {continue;}
-                    //echo "$output<br>";
-                    if ($row_count == 0) {
-                        echo "<tr>";
-                        foreach(preg_split("/,/", $output) as $cell){
-                            echo "<th>$cell</th>";}
-                        echo "</tr>";
-                        $row_count++;}
-                    else {
-                        echo "<tr>";
-                        foreach(preg_split("/,/", $output) as $cell){
-                            echo "<td>$cell</td>";}
-                        echo "</tr>";}}
+                echo "<tr><th>Source IP</th><th>Destination IP</th><th>Port</th><th>Protocol</th><th>Num Flows</th><th>First Detected</th><th>Last Detected</th></tr>";
+                foreach($flows as $flow){
+                    echo "<tr>";
+                    echo "<td>"; print_r($flow->src->ip); echo "</td>";
+                    echo "<td>"; print_r($flow->dst->ip); echo "</td>";
+                    echo "<td>"; print_r($flow->service->port); echo "</td>";
+                    if($flow->service->proto == "6") {echo "<td>TCP</td>";}
+                    elseif($flow->service->proto == "17") {echo "<td>UDP</td>";}
+                    elseif($flow->service->proto == "1") {echo "<td>ICMP</td>";}
+                    else {echo "<td>"; print_r($flow->service->proto); echo "</td>";}
+                    echo "<td>"; print_r($flow->num_connections); echo "</td>";
+                    echo "<td>"; print_r($flow->timestamp_range->first_detected); echo "</td>";
+                    echo "<td>"; print_r($flow->timestamp_range->last_detected); echo "</td>";
+                    echo "</tr>";}
                 echo "</table>";}
             else {
-                //get header
-                $header = preg_split("/((\r?\n)|(\r\n?))/", $result, 2)[0];
-                $cut_header = shell_exec("echo $header | cut -d, -f1,14,26,27,31,36,37");
-                foreach(preg_split("/((\r?\n)|(\r\n?))/", $result) as $line){
-                    $line_result_consumer_ip = shell_exec("echo $line | cut -d, -f1 | xargs");
-                    $line_result_consumer_ip = preg_replace('/\s+/', '', $line_result_consumer_ip);
+                $source_flows = array();
+                foreach($flows as $flow){
+                    $line_result_consumer_ip = $flow->src->ip;
                     if($line_result_consumer_ip == $_POST["form_ip"]) {
-                        $cut_line = shell_exec("echo $line | cut -d, -f1,14,26,27,31,36,37");
-                        $source_output = "$source_output\r\n$cut_line";}}
+                        array_push($source_flows,$flow);}}
                 echo "Source IP results:<br>";
-                if (isset($source_output) && $source_output !== '') {
+                if (!empty($source_flows)){
                     echo "<table>";
-                    echo "<tr>";
-                    foreach(preg_split("/,/", $cut_header) as $cell){
-                        echo "<th>$cell</td>";}
-                    echo "</tr>";
-                    foreach(preg_split("/((\r?\n)|(\r\n?))/", $source_output) as $line){
-                        if (!str_contains($line,",")) {continue;}
+                    echo "<tr><th>Source IP</th><th>Destination IP</th><th>Port</th><th>Protocol</th><th>Num Flows</th><th>First Detected</th><th>Last Detected</th></tr>";
+                    foreach($source_flows as $flow){
                         echo "<tr>";
-                        foreach(preg_split("/,/", $line) as $cell){
-                            echo "<td>$cell</td>";}
+                        echo "<td>"; print_r($flow->src->ip); echo "</td>";
+                        echo "<td>"; print_r($flow->dst->ip); echo "</td>";
+                        echo "<td>"; print_r($flow->service->port); echo "</td>";
+                        if($flow->service->proto == "6") {echo "<td>TCP</td>";}
+                        elseif($flow->service->proto == "17") {echo "<td>UDP</td>";}
+                        elseif($flow->service->proto == "1") {echo "<td>ICMP</td>";}
+                        else {echo "<td>"; print_r($flow->service->proto); echo "</td>";}
+                        echo "<td>"; print_r($flow->num_connections); echo "</td>";
+                        echo "<td>"; print_r($flow->timestamp_range->first_detected); echo "</td>";
+                        echo "<td>"; print_r($flow->timestamp_range->last_detected); echo "</td>";
                         echo "</tr>";}
-                    echo "<table>";}
+                    echo "</table><br>";}
                 else {
                     echo "None<br>";}
-                foreach(preg_split("/((\r?\n)|(\r\n?))/", $result) as $line){
-                    $line_result_destination_ip = shell_exec("echo $line | cut -d, -f14 | xargs");
-                    $line_result_destination_ip = preg_replace('/\s+/', '', $line_result_destination_ip);
+                $destination_flows = array();
+                foreach($flows as $flow){
+                    $line_result_destination_ip = $flow->dst->ip;
                     if($line_result_destination_ip == $_POST["form_ip"]) {
-                        $cut_line = shell_exec("echo $line | cut -d, -f1,14,26,27,31,36,37");
-                        $destination_output = "$destination_output\r\n$cut_line";}}
-                echo "<br>Destination IP results:<br>";
-                if (isset($destination_output) && $destination_output !== '') {
+                        array_push($destination_flows,$flow);}}
+                echo "Destination IP results:<br>";
+                if (!empty($destination_flows)){
                     echo "<table>";
-                    echo "<tr>";
-                    foreach(preg_split("/,/", $cut_header) as $cell){
-                        echo "<th>$cell</td>";}
-                    echo "</tr>";
-                    foreach(preg_split("/((\r?\n)|(\r\n?))/", $destination_output) as $line){
-                        if (!str_contains($line,",")) {continue;}
+                    echo "<tr><th>Source IP</th><th>Destination IP</th><th>Port</th><th>Protocol</th><th>Num Flows</th><th>First Detected</th><th>Last Detected</th></tr>";
+                    foreach($destination_flows as $flow){
                         echo "<tr>";
-                        foreach(preg_split("/,/", $line) as $cell){
-                            echo "<td>$cell</td>";}
+                        echo "<td>"; print_r($flow->src->ip); echo "</td>";
+                        echo "<td>"; print_r($flow->dst->ip); echo "</td>";
+                        echo "<td>"; print_r($flow->service->port); echo "</td>";
+                        if($flow->service->proto == "6") {echo "<td>TCP</td>";}
+                        elseif($flow->service->proto == "17") {echo "<td>UDP</td>";}
+                        elseif($flow->service->proto == "1") {echo "<td>ICMP</td>";}
+                        else {echo "<td>"; print_r($flow->service->proto); echo "</td>";}
+                        echo "<td>"; print_r($flow->num_connections); echo "</td>";
+                        echo "<td>"; print_r($flow->timestamp_range->first_detected); echo "</td>";
+                        echo "<td>"; print_r($flow->timestamp_range->last_detected); echo "</td>";
                         echo "</tr>";}
-                    echo "<table>";}
+                    echo "</table>";}
                 else {
                     echo "None<br>";}}}
     ?>
     <body style="margin: 0;padding: 0">
-        <div class="header">illumio - Blocked Traffic Flows Query</div>
+        <div class="header">Illumio - Blocked Traffic Flows Query</div>
         <div class="filter">
             <form action="" method="post">
                 IP: <input type="text" name="form_ip" value='<?php echo isset($_POST["form_ip"]) ? $_POST["form_ip"] : "" ?>'>&nbsp

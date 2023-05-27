@@ -24,7 +24,7 @@ service firewalld stop
 systemctl disable firewalld
 
 #install and start services
-yum install -y nginx php policycoreutils-devel
+yum install -y wget nginx php policycoreutils-devel
 wget https://mirror.city-fan.org/ftp/contrib/sysutils/Mirroring/curl-8.0.1-3.0.cf.rhel9.x86_64.rpm
 wget https://mirror.city-fan.org/ftp/contrib/sysutils/Mirroring/libcurl-8.0.1-3.0.cf.rhel9.x86_64.rpm
 rpm -ivh curl-8.0.1-3.0.cf.rhel9.x86_64.rpm libcurl-8.0.1-3.0.cf.rhel9.x86_64.rpm --force
