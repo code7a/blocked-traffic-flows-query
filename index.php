@@ -88,7 +88,7 @@
             //echo "Web request body:<br>";
             //echo "$body";
             //traffic flows async queries api call
-            $ch = curl_init("https://$fqdn:$port/api/v2/orgs/1/traffic_flows/async_queries");
+            $ch = curl_init("https://$fqdn:$port/api/v2/orgs/$org/traffic_flows/async_queries");
             curl_setopt($ch, CURLOPT_USERPWD, "$user:$key");
             curl_setopt($ch, CURLOPT_POSTFIELDS, $body );
             curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type:application/json'));
