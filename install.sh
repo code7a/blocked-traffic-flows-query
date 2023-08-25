@@ -41,7 +41,6 @@ sed -i 's/display_errors = Off/display_errors = on/g' /etc/php.ini
 
 #update php default time zone with local linux date set timezone
 BASEDIR=$(dirname $0)
-$BASEDIR/update-php-default-timezone.sh
 
 #copy index.php to nginx directory
 cp $BASEDIR/index.php /usr/share/nginx/html/
