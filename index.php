@@ -10,23 +10,40 @@
     License for the specific language governing permissions and limitations under
     the License.
     -->
+    <head><meta http-equiv="content-type" content="text/html; charset=UTF-8"></head>
+    <title>Illumio - Blocked Traffic Flows Query</title>
     <style>
         div.header {
-            background-color:#007CC5;
+            background-color: #007CC5;
             height: 46px;
             line-height: 46px;
             text-align: middle;
-            color:white;
-            font-size:18px;
+            color: white;
+            font-size: 18px;
             font-family: 'Segoe UI';
             font-weight: 600;
             text-indent: 20px;
             padding-right: 20px;}
+        span.info {
+            float: right;
+            font-size: 18px;
+            font-family: 'Segoe UI';
+            font-weight: 600;}
+        a:link {
+            font-weight: normal;}
+        a:active {
+            font-weight: normal;}
+        a:visited {
+            color: white;
+            font-weight: normal;}
+        a:hover {
+            color: white;
+            font-weight: normal;}
         img {
-            position:relative;
-            top:15%;}
+            position: relative;
+            top: 15%;}
         div.filter {
-            background-color:#e3e6e9;
+            background-color: #e3e6e9;
             font-family: 'Segoe UI';
             color: #424242;
             height: 55px;
@@ -68,14 +85,34 @@
                 $exclude_transmission='{"transmission":"multicast"}';}
             else {$exclude_transmission="";}
             //exclude services conditional statement
-            if(isset($_POST['form_exclude_services'])) {
+            if(isset($_POST['form_exclude_ports'])) {
                 $port_exclusions = file_get_contents('port_exclusions.csv');
                 $port_exclusions_array = str_getcsv($port_exclusions);
-                $services_to_exclude="";
+                $ports_to_exclude="";
                 foreach ($port_exclusions_array as $each_port) {
-                    $services_to_exclude =  $services_to_exclude . '{"port":' . $each_port . '},';
+                    $ports_to_exclude =  $ports_to_exclude . '{"port":' . $each_port . '},';
                 }
-                $services_to_exclude = substr($services_to_exclude,0,-1);}
+                $ports_to_exclude = substr($ports_to_exclude,0,-1);}
+            else {
+                $ports_to_exclude="";}
+            //exclude protocol conditional statement
+            if(isset($_POST['form_exclude_protocols'])) {
+                $protocol_exclusions = file_get_contents('protocol_exclusions.csv');
+                $protocol_exclusions_array = str_getcsv($protocol_exclusions);
+                $protocols_to_exclude="";
+                foreach ($protocol_exclusions_array as $each_protocol) {
+                    $protocols_to_exclude =  $protocols_to_exclude . '{"proto":' . $each_protocol . '},';
+                }
+                $protocols_to_exclude = substr($protocols_to_exclude,0,-1);}
+            else {
+                $protocols_to_exclude="";}
+            //services_to_exclude
+            if(!empty($ports_to_exclude) && !empty($protocols_to_exclude)){
+                $services_to_exclude=$ports_to_exclude . "," . $protocols_to_exclude;}
+            elseif(!empty($ports_to_exclude)){
+                $services_to_exclude=$ports_to_exclude;}
+            elseif(!empty($protocols_to_exclude)){
+                $services_to_exclude=$protocols_to_exclude;}
             else {
                 $services_to_exclude="";}
             //get date
@@ -190,16 +227,21 @@
                     echo "None<br>";}}}
     ?>
     <body style="margin: 0;padding: 0">
-        <div class="header">Illumio - Blocked Traffic Flows Query</div>
+        <div class="header">Illumio - Blocked Traffic Flows Query<span class="info"><a href="info.html" style="text-decoration:none;">?</a></span></div>
         <div class="filter">
             <form action="" method="post">
                 IP: <input type="text" name="form_ip" value='<?php echo isset($_POST["form_ip"]) ? $_POST["form_ip"] : "" ?>'>&nbsp
                 Port Number: <input type="text" name="form_port_number" value='<?php echo isset($_POST["form_port_number"]) ? $_POST["form_port_number"] : "" ?>'>&nbsp
                 <input type="submit" name="submit"><br>
-                <input type="checkbox" name="form_exclude_services" checked>Exclude ports: 
+                <input type="checkbox" name="form_exclude_ports" checked>Exclude ports: 
                 <?php
                     $port_exclusions = file_get_contents('port_exclusions.csv');
                     echo $port_exclusions;
+                ?>
+                <input type="checkbox" name="form_exclude_protocols" checked>Exclude protocols: 
+                <?php
+                    $protocol_exclusions = file_get_contents('protocol_exclusions.csv');
+                    echo $protocol_exclusions;
                 ?>
                 <input type="checkbox" name="form_exclude_broadcast" checked>Exclude broadcast 
                 <input type="checkbox" name="form_exclude_multicast" checked>Exclude multicast 
