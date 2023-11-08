@@ -139,7 +139,7 @@
             $traffic_flows_query_status="";
             //while loop until query completed
             while($traffic_flows_query_status != "completed"){
-                sleep(1);
+                sleep(5);
                 $ch = curl_init("https://$fqdn:$port/api/v2$traffic_flows_query_href");
                 curl_setopt($ch, CURLOPT_USERPWD, "$user:$key");
                 curl_setopt($ch, CURLOPT_RETURNTRANSFER, true );
