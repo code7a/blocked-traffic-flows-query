@@ -44,6 +44,7 @@ BASEDIR=$(dirname $0)
 
 #copy index.php to nginx directory
 cp $BASEDIR/index.php /usr/share/nginx/html/
+cp $BASEDIR/verbose.php /usr/share/nginx/html/
 cp $BASEDIR/info.html /usr/share/nginx/html/
 cp $BASEDIR/port_exclusions.csv /usr/share/nginx/html/
 cp $BASEDIR/protocol_exclusions.csv /usr/share/nginx/html/
