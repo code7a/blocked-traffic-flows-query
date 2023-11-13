@@ -67,13 +67,15 @@
             //ip address conditional statement
             if(!empty($_POST["form_ip"])) {
                 $source_ip = '{"ip_address":"'.$_POST["form_ip"].'"}';
+                $source_ip = str_replace(" ","",$source_ip);
                 $destination_ip = $source_ip;}
             else {
                 $source_ip = "";
                 $destination_ip = "";}
             //port number conditional statement
             if(!empty($_POST["form_port_number"])) {
-                $port_number = '{"port":'.$_POST["form_port_number"].'}';}
+                $port_number = '{"port":'.$_POST["form_port_number"].'}';
+                $port_number = str_replace(" ","",$port_number);}
             else {
                 $port_number = "";}
             //exclude transmission conditional statement
