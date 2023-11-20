@@ -33,13 +33,17 @@ yum update -y curl
 
 #install and start services
 yum install -y wget nginx php policycoreutils-devel
-systemctl enable nginx
-systemctl start nginx
+
+#increase default nginx timeout
+sed -i 's/keepalive_timeout   65;/keepalive_timeout   1200;/g' /etc/nginx/nginx.conf
 
 #update php.ini, display_errors = on
 sed -i 's/display_errors = Off/display_errors = on/g' /etc/php.ini
 
-#update php default time zone with local linux date set timezone
+#enable and start nginx
+systemctl enable nginx
+systemctl start nginx
+
 BASEDIR=$(dirname $0)
 
 #copy index.php to nginx directory
@@ -50,7 +54,7 @@ cp $BASEDIR/port_exclusions.csv /usr/share/nginx/html/
 cp $BASEDIR/protocol_exclusions.csv /usr/share/nginx/html/
 
 #configure config.php if does not exist
-$BASEDIR/update-php-config.sh
+sudo $BASEDIR/update-php-config.sh
 
 #curl to trigger selinux failure
 curl --connect-timeout 5 --max-time 10 --silent localhost --data-raw 'form_ip=&form_port_number=&submit=Submit+Query' > /dev/null
